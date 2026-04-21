@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Duck Race Tournament</title>
+  <style>
+    :root {
+      --bg: #f5f1e8;
+      --text: #111;
+      --accent: #ffd400;
+      --line: #111;
+      --muted: #6a6a6a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      padding: 20px;
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      border: 4px solid var(--line);
+      background: #fff;
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+
+    .kicker {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.2rem, 6vw, 5rem);
+      line-height: 0.95;
+      text-transform: uppercase;
+    }
+
+    .sub {
+      margin-top: 12px;
+      font-size: 1rem;
+      max-width: 700px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 20px;
+    }
+
+    .panel {
+      border: 4px solid var(--line);
+      background: #fff;
+      padding: 16px;
+    }
+
+    .panel h2 {
+      margin: 0 0 16px 0;
+      font-size: 1.4rem;
+      text-transform: uppercase;
+      border-bottom: 4px solid var(--line);
+      display: inline-block;
+      padding-bottom: 4px;
+    }
+
+    .leaderboard {
+      display: grid;
+      gap: 14px;
+    }
+
+    .player-row {
+      border: 3px solid var(--line);
+      padding: 10px;
+    }
+
+    .player-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .player-name {
+      font-size: 1.1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .player-meta {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .bar-track {
+      width: 100%;
+      border: 3px solid var(--line);
+      height: 32px;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          #fff 0,
+          #fff 24px,
+          #ece7db 24px,
+          #ece7db 48px
+        );
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-right: 3px solid var(--line);
+      min-width: 0;
+    }
+
+    .summary-boxes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .summary-box {
+      border: 3px solid var(--line);
+      padding: 10px;
+      background: #fff;
+    }
+
+    .summary-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .summary-value {
+      font-size: 1.5rem;
+      font-weight: 900;
+    }
+
+    .race-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .race-card {
+      border: 3px solid var(--line);
+      padding: 12px;
+    }
+
+    .race-title {
+      font-size: 1rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .race-date {
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .placements {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .placements li {
+      margin-bottom: 4px;
+      line-height: 1.2;
+    }
+
+    .footer-note {
+      margin-top: 20px;
+      border: 4px solid var(--line);
+      background: #fff;
+      padding: 16px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    .footer-note code {
+      background: #eee7d8;
+      padding: 2px 6px;
+      border: 1px solid var(--line);
+      font-size: 0.9em;
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-boxes {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="kicker">Spring / Summer Tournament</div>
+      <h1>Rubber Duck Race</h1>
+      <div class="sub" id="season-subtitle"></div>
+    </section>
+
+    <div class="grid">
+      <div>
+        <section class="panel">
+          <h2>Leaderboard</h2>
+          <div id="leaderboard" class="leaderboard"></div>
+          <div class="summary-boxes">
+            <div class="summary-box">
+              <div class="summary-label">Races Run</div>
+              <div class="summary-value" id="races-run"></div>
+            </div>
+            <div class="summary-box">
+              <div class="summary-label">Last Winner</div>
+              <div class="summary-value" id="last-winner"></div>
+            </div>
+            <div class="summary-box">
+              <div class="summary-label">Current Leader</div>
+              <div class="summary-value" id="current-leader"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="footer-note">
+          <strong>Scoring:</strong> 1st = 10, 2nd = 7, 3rd = 5, 4th = 3, 5th = 2, 6th = 1, 7th = 0, 8th = 0.<br /><br />
+          <strong>Rules</strong><br />
+          1. All ducks race together. Finishing order determines points.  <br />
+2. No touching the water or ducks once released.  <br />
+3. If a duck gets stuck, assistance is allowed only by throwing an object.  <br />
+4. Disputes are settled by group vote.  <br />
+5. Commissioner (Mandy) has final say if needed. 
+        </section>
+      </div>
+
+      <section class="panel">
+        <h2>Race Results</h2>
+        <div id="race-list" class="race-list"></div>
+      </section>
+    </div>
+
+  </div>
+
+  <script>
+    // =====================================================
+    // EDIT ONLY THIS SECTION
+    // =====================================================
+    const TOURNAMENT = {
+      title: "The Great Family Duck Race Tournament",
+      season: "Spring / Summer 2026",
+      people: [
+        "Adam",
+        "Anna",
+        "Asher",
+        "Cannon",
+        "Elliot",
+        "Hayes",
+        "Mandy",
+        "Rone"
+      ],
+      ducksPerPerson: 4,
+      scoring: [10, 7, 5, 3, 2, 1, 0, 0],
+      races: [
+        {
+          name: "Race 1 - Rd 30n",
+          date: "2026-04-12",
+          results: [
+            "Adam",
+            "Anna",
+            "Asher",
+            "Cannon",
+            "Elliot",
+            "Hayes",
+            "Mandy",
+            "Rone"
+          ]
+        },
+        {
+          name: "Race 2",
+          date: "2026-05-31",
+          results: [
+            "Mandy",
+            "Rone",
+            "Adam",
+            "Hayes",
+            "Anna",
+            "Elliot",
+            "Cannon",
+            "Asher"
+          ]
+        }
+      ]
+    };
+    // =====================================================
+
+    const leaderboardEl = document.getElementById('leaderboard');
+    const raceListEl = document.getElementById('race-list');
+    const racesRunEl = document.getElementById('races-run');
+    const lastWinnerEl = document.getElementById('last-winner');
+    const currentLeaderEl = document.getElementById('current-leader');
+    const seasonSubtitleEl = document.getElementById('season-subtitle');
+
+    function buildStandings(data) {
+      const standings = data.people.map(name => ({
+        name,
+        points: 0,
+        placements: []
+      }));
+
+      const lookup = Object.fromEntries(standings.map(p => [p.name, p]));
+
+      data.races.forEach(race => {
+        race.results.forEach((person, index) => {
+          const entry = lookup[person];
+          if (!entry) return;
+          const pts = data.scoring[index] ?? 0;
+          entry.points += pts;
+          entry.placements.push(index + 1);
+        });
+      });
+
+      standings.sort((a, b) => {
+        if (b.points !== a.points) return b.points - a.points;
+
+        const aWins = a.placements.filter(p => p === 1).length;
+        const bWins = b.placements.filter(p => p === 1).length;
+        if (bWins !== aWins) return bWins - aWins;
+
+        const aBest = Math.min(...a.placements, 99);
+        const bBest = Math.min(...b.placements, 99);
+        if (aBest !== bBest) return aBest - bBest;
+
+        return a.name.localeCompare(b.name);
+      });
+
+      return standings;
+    }
+
+    function renderLeaderboard(standings, totalRaces) {
+      leaderboardEl.innerHTML = '';
+      const maxPoints = Math.max(...standings.map(p => p.points), 1);
+
+      standings.forEach((player, index) => {
+        const row = document.createElement('div');
+        row.className = 'player-row';
+
+        const wins = player.placements.filter(p => p === 1).length;
+        const avgPlace = player.placements.length
+          ? (player.placements.reduce((a, b) => a + b, 0) / player.placements.length).toFixed(1)
+          : '-';
+
+        const barPercent = (player.points / maxPoints) * 100;
+
+        row.innerHTML = `
+          <div class="player-top">
+            <div class="player-name">${index + 1}. ${player.name}</div>
+            <div class="player-meta">${player.points} pts | ${wins} win${wins === 1 ? '' : 's'} | avg ${avgPlace}</div>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${barPercent}%"></div>
+          </div>
+        `;
+
+        leaderboardEl.appendChild(row);
+      });
+    }
+
+    function renderRaces(races, scoring) {
+      raceListEl.innerHTML = '';
+
+      const reversed = [...races].reverse();
+
+      reversed.forEach(race => {
+        const card = document.createElement('div');
+        card.className = 'race-card';
+
+        const items = race.results.map((person, index) => {
+          const pts = scoring[index] ?? 0;
+          return `<li>${person} <strong>(${pts} pts)</strong></li>`;
+        }).join('');
+
+        card.innerHTML = `
+          <div class="race-title">${race.name}</div>
+          <div class="race-date">${race.date}</div>
+          <ol class="placements">${items}</ol>
+        `;
+
+        raceListEl.appendChild(card);
+      });
+    }
+
+    function renderPage(data) {
+      document.title = data.title;
+      seasonSubtitleEl.textContent = `${data.title} | ${data.season} `;
+
+      const standings = buildStandings(data);
+      renderLeaderboard(standings, data.races.length);
+      renderRaces(data.races, data.scoring);
+
+      racesRunEl.textContent = data.races.length;
+      const lastRace = data.races[data.races.length - 1];
+      lastWinnerEl.textContent = lastRace ? lastRace.results[0] : '-';
+      currentLeaderEl.textContent = standings[0]?.name || '-';
+    }
+
+    renderPage(TOURNAMENT);
+  </script>
+</body>
+</html>

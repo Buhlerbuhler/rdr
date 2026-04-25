@@ -7,7 +7,7 @@
   <link rel="icon" type="image/png" href="https://github.com/Buhlerbuhler/rdr/blob/main/duck.png?raw=true">
   <link rel="apple-touch-icon" href="https://github.com/Buhlerbuhler/rdr/blob/main/duck.png?raw=true">
   <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <style>
     :root {
       --bg: #f5f1e8;
@@ -58,6 +58,14 @@
       font-size: clamp(2.2rem, 6vw, 5rem);
       line-height: 0.95;
       text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    h1 img {
+      max-height: 1em;
     }
 
     .sub {
@@ -110,6 +118,17 @@
       font-size: 1.1rem;
       font-weight: 800;
       text-transform: uppercase;
+      border: 0;
+      background: none;
+      padding: 0;
+      color: var(--text);
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+    }
+
+    .player-name:hover {
+      text-decoration: underline;
     }
 
     .player-meta {
@@ -216,6 +235,71 @@
       font-size: 0.9em;
     }
 
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 20;
+      padding: 20px;
+    }
+
+    .modal-backdrop.open {
+      display: grid;
+      place-items: center;
+    }
+
+    .modal {
+      width: min(720px, 100%);
+      background: #fff;
+      border: 4px solid var(--line);
+      padding: 16px;
+      box-shadow: 10px 10px 0 #000;
+    }
+
+    .modal-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      border-bottom: 4px solid var(--line);
+      padding-bottom: 8px;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .modal-close {
+      border: 3px solid var(--line);
+      background: var(--accent);
+      color: var(--text);
+      font-weight: 900;
+      font-size: 1rem;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .modal img {
+      width: 100%;
+      max-height: 70vh;
+      object-fit: contain;
+      border: 3px solid var(--line);
+      background: #f5f1e8;
+    }
+
+    .empty-photo {
+      border: 3px solid var(--line);
+      padding: 30px;
+      font-weight: 800;
+      text-transform: uppercase;
+      background: #f5f1e8;
+    }
+
     @media (max-width: 900px) {
       .grid {
         grid-template-columns: 1fr;
@@ -231,7 +315,7 @@
   <div class="wrap">
     <section class="hero">
       <div class="kicker">Spring / Summer Tournament</div>
-      <h1>Rubber Duck Race<img src="https://github.com/Buhlerbuhler/rdr/blob/main/duck.png?raw=true" alt="Duck" style="max-height:1em;" /></h1>
+      <h1>Rubber Duck Race<img src="https://github.com/Buhlerbuhler/rdr/blob/main/duck.png?raw=true" alt="Duck" /></h1>
       <div class="sub" id="season-subtitle"></div>
     </section>
 
@@ -259,11 +343,12 @@
         <section class="footer-note">
           <strong>Scoring:</strong> 1st = 10, 2nd = 7, 3rd = 5, 4th = 3, 5th = 2, 6th = 1, 7th = 0, 8th = 0.<br /><br />
           <strong>Rules</strong><br />
-          1. All ducks race together. Finishing order determines points.  <br />
-2. No touching the water or ducks once released.  <br />
-3. If a duck gets stuck, assistance is allowed only by throwing an object.  <br />
-4. Disputes are settled by group vote.  <br />
-5. Commissioner (Mandy) has final say if needed. 
+          1. All ducks race together. Finishing order determines points.<br />
+          2. No touching the water or ducks once released.<br />
+          3. If a duck gets stuck, assistance is allowed only by throwing an object.<br />
+          4. Disputes are settled by group vote.<br />
+          5. Commissioner (Mandy) has final say if needed.<br />
+          6. All ducks must recieve equal playing time. 
         </section>
       </div>
 
@@ -272,7 +357,16 @@
         <div id="race-list" class="race-list"></div>
       </section>
     </div>
+  </div>
 
+  <div class="modal-backdrop" id="duck-modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-top">
+        <div class="modal-title" id="modal-title">Duck Photo</div>
+        <button class="modal-close" id="modal-close">Close</button>
+      </div>
+      <div id="modal-content"></div>
+    </div>
   </div>
 
   <script>
@@ -283,14 +377,14 @@
       title: "The Great Family Duck Race Tournament of 2026",
       season: "",
       people: [
-        "Adam",
-        "Anna",
-        "Asher",
-        "Cannon",
-        "Elliot",
-        "Hayes",
-        "Mandy",
-        "Rone"
+        { name: "Adam", duckPhoto: "https://github.com/Buhlerbuhler/rdr/blob/main/Adam.webp?raw=true" },
+        { name: "Anna", duckPhoto: "https://github.com/Buhlerbuhler/rdr/blob/main/Anna.webp?raw=true" },
+        { name: "Asher", duckPhoto: "https://github.com/Buhlerbuhler/rdr/blob/main/Asher.webp?raw=true" },
+        { name: "Cannon", duckPhoto: "https://github.com/Buhlerbuhler/rdr/blob/main/Cannon.webp?raw=true" },
+        { name: "Elliot", duckPhoto: "https://github.com/Buhlerbuhler/rdr/blob/main/Elliot.webp?raw=true" },
+        { name: "Hayes", duckPhoto: "https://github.com/Buhlerbuhler/rdr/blob/main/Hayes.webp?raw=true" },
+        { name: "Mandy", duckPhoto: "https://github.com/Buhlerbuhler/rdr/blob/main/Mandy.webp?raw=true" },
+        { name: "Rone", duckPhoto: "https://github.com/Buhlerbuhler/rdr/blob/main/Rone.webp?raw=true" }
       ],
       ducksPerPerson: 4,
       scoring: [10, 7, 5, 3, 2, 1, 0, 0],
@@ -347,10 +441,15 @@
     const lastWinnerEl = document.getElementById('last-winner');
     const currentLeaderEl = document.getElementById('current-leader');
     const seasonSubtitleEl = document.getElementById('season-subtitle');
+    const duckModalEl = document.getElementById('duck-modal');
+    const modalTitleEl = document.getElementById('modal-title');
+    const modalContentEl = document.getElementById('modal-content');
+    const modalCloseEl = document.getElementById('modal-close');
 
     function buildStandings(data) {
-      const standings = data.people.map(name => ({
-        name,
+      const standings = data.people.map(person => ({
+        name: person.name,
+        duckPhoto: person.duckPhoto,
         points: 0,
         placements: []
       }));
@@ -384,6 +483,32 @@
       return standings;
     }
 
+    function openDuckModal(player) {
+      modalTitleEl.textContent = `${player.name}'s Ducks`;
+
+      if (player.duckPhoto) {
+        modalContentEl.innerHTML = `<img src="${player.duckPhoto}" alt="${player.name}'s ducks" />`;
+      } else {
+        modalContentEl.innerHTML = `<div class="empty-photo">No duck photo added yet.</div>`;
+      }
+
+      duckModalEl.classList.add('open');
+    }
+
+    function closeDuckModal() {
+      duckModalEl.classList.remove('open');
+    }
+
+    modalCloseEl.addEventListener('click', closeDuckModal);
+
+    duckModalEl.addEventListener('click', event => {
+      if (event.target === duckModalEl) closeDuckModal();
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') closeDuckModal();
+    });
+
     function renderLeaderboard(standings, totalRaces) {
       leaderboardEl.innerHTML = '';
       const maxPoints = Math.max(...standings.map(p => p.points), 1);
@@ -401,13 +526,17 @@
 
         row.innerHTML = `
           <div class="player-top">
-            <div class="player-name">${index + 1}. ${player.name}</div>
+            <button class="player-name" type="button">${index + 1}. ${player.name}</button>
             <div class="player-meta">${player.points} pts | ${wins} win${wins === 1 ? '' : 's'} | avg ${avgPlace}</div>
           </div>
           <div class="bar-track">
             <div class="bar-fill" style="width:${barPercent}%"></div>
           </div>
         `;
+
+        row.querySelector('.player-name').addEventListener('click', () => {
+          openDuckModal(player);
+        });
 
         leaderboardEl.appendChild(row);
       });
@@ -439,7 +568,7 @@
 
     function renderPage(data) {
       document.title = data.title;
-      seasonSubtitleEl.textContent = `${data.title} | ${data.season} `;
+      seasonSubtitleEl.textContent = `${data.title} | ${data.season}`;
 
       const standings = buildStandings(data);
       renderLeaderboard(standings, data.races.length);
